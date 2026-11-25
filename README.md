@@ -1,5 +1,7 @@
 # Warehouse IT Monitor
 
+[Deutsch](README.md) · [English](README.en.md)
+
 **Version:** 0.7.0  
 **Zweck:** Lokales Lernprojekt zur Überwachung ausdrücklich konfigurierter HTTP/HTTPS- und TCP-Dienste mit Prüfverlauf, Analysen und SQLite.
 
