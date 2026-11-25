@@ -1,5 +1,7 @@
 # Warehouse IT Monitor
 
+![CI](https://github.com/antojjbhhv-crypto/warehouse-it-monitor-showcase/actions/workflows/tests.yml/badge.svg)
+
 [Deutsch](README.md) · [English](README.en.md)
 
 **Version:** 0.7.0  
