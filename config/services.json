@@ -1,0 +1,9 @@
+{
+  "services": [
+    {
+      "name": "Warehouse Demo Service",
+      "url": "http://127.0.0.1:8001/healthz",
+      "timeout_seconds": 2.0
+    }
+  ]
+}

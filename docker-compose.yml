@@ -1,0 +1,41 @@
+services:
+  demo:
+    build: .
+    command: ["uvicorn", "demo_service.main:app", "--host", "0.0.0.0", "--port", "8001"]
+    expose:
+      - "8001"
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8001/healthz', timeout=2)"
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+    restart: unless-stopped
+
+  monitor:
+    build: .
+    # Root inside this local-only container avoids Windows bind-mount permission mismatches.
+    user: "0:0"
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    environment:
+      WITMON_DB_PATH: /app/data/monitor.sqlite3
+      WITMON_SERVICES_PATH: /app/config/services.docker.json
+      WITMON_TELEGRAM_ENABLED: ${WITMON_TELEGRAM_ENABLED:-false}
+      WITMON_TELEGRAM_BOT_TOKEN: ${WITMON_TELEGRAM_BOT_TOKEN:-}
+      WITMON_TELEGRAM_CHAT_ID: ${WITMON_TELEGRAM_CHAT_ID:-}
+      WITMON_TELEGRAM_TIMEOUT: ${WITMON_TELEGRAM_TIMEOUT:-10}
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - ./data:/app/data
+      - ./backups:/app/backups
+      - ./config/services.docker.json:/app/config/services.docker.json:ro
+    depends_on:
+      demo:
+        condition: service_healthy
+    init: true
+    restart: unless-stopped

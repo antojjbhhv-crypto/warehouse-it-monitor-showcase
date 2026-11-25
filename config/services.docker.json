@@ -1,0 +1,13 @@
+{
+  "scheduler": {
+    "enabled": true,
+    "interval_seconds": 60
+  },
+  "services": [
+    {
+      "name": "Local Docker Demo Service",
+      "url": "http://demo:8001/healthz",
+      "timeout_seconds": 2.0
+    }
+  ]
+}

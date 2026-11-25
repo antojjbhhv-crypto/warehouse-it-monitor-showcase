@@ -1,0 +1,42 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pytest:
+    name: ${{ matrix.os }} / Python ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python-version: ["3.13", "3.15.1"]
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && python -m pip install -r requirements.txt
+
+      - name: Run test suite
+        run: python -m pytest -v
+
+      - name: Backup, verify, and restore smoke test
+        run: |
+          python -c "from app.database import init_db, sync_services, record_check; p='smoke.sqlite3'; init_db(p); sync_services(p, [{'name': 'Demo', 'url': 'http://127.0.0.1:8001/healthz', 'timeout_seconds': 2.0}]); record_check(p, service_id=1, checked_at='2026-11-23T10:00:00.000Z', status='UP', status_code=200, response_time_ms=42.5, error_message=None)"
+          python -m app.backup backup --db smoke.sqlite3 --output smoke-backup.sqlite3
+          python -m app.backup verify --db smoke-backup.sqlite3
+          python -m app.backup restore --db smoke.sqlite3 --input smoke-backup.sqlite3
